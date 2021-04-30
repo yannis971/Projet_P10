@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'soft_desk.apps.SoftDeskConfig',
 ]
+
+AUTH_USER_MODEL = 'soft_desk.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
