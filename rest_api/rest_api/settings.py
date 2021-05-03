@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'soft_desk.apps.SoftDeskConfig',
 ]
 
-AUTH_USER_MODEL = 'soft_desk.User'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -71,7 +69,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rest_api.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -126,3 +123,23 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Mes modifications
+
+AUTH_USER_MODEL = 'soft_desk.User'
+
+REST_FRAMEWORK = {
+    #Paramètres de pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    #Classes de permission
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    #Authentification avec rest_framework_jwt
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
