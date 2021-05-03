@@ -8,6 +8,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.ReadOnlyField(source='user.id')
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type']
+        fields = ['id', 'title', 'description', 'type', 'user_id']
