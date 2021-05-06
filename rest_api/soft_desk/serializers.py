@@ -15,6 +15,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    author_user = serializers.ReadOnlyField(source='author_user.username')
     author_user_id = serializers.ReadOnlyField(source='author_user.user_id')
 
 
