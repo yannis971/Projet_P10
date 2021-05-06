@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
-
+"""
 import datetime
 JWT_AUTH = {
 
@@ -195,4 +195,3 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None,
 
 }
-"""
