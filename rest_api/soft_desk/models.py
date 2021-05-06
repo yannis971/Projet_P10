@@ -72,10 +72,10 @@ class User(AbstractBaseUser):
     staff = models.BooleanField(default=False) # a admin user; non super-user
     admin = models.BooleanField(default=False) # a superuser
 
+    objects = UserManager()
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [] # Email & Password are required by default.
-
-    objects = UserManager()
 
     def get_full_name(self):
         """
@@ -137,7 +137,7 @@ class Contributor(models.Model):
     """
     Entity Liens entre User et Project
     """
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
 
 
@@ -166,7 +166,7 @@ class Contributor(models.Model):
         unique_together = ('user', 'project', )
 
     def __str__(self):
-        return f"{self.user.username} - {self.project.title}"
+        return f"{self.user.email} - {self.project.title}"
 
 
 class Issue(models.Model):
