@@ -1,3 +1,4 @@
+from django.contrib.auth.signals import user_logged_in
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins
@@ -47,9 +48,8 @@ class UserLogin(APIView):
                     user_details['name'] = "%s %s" % (
                         user.first_name, user.last_name)
                     user_details['token'] = token
-                    #user_logged_in est dans django.contrib.auth.permissions
-                    #user_logged_in.send(sender=user.__class__,
-                    #                    request=request, user=user)
+                    user_logged_in.send(sender=user.__class__,
+                                        request=request, user=user)
                     return Response(user_details, status=status.HTTP_200_OK)
 
                 except Exception as e:
