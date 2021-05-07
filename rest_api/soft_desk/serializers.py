@@ -8,14 +8,12 @@ from soft_desk.models import User
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 
-
     class Meta:
         model = User
         fields = ['user_id', 'first_name', 'last_name', 'email', 'password']
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
-    author_user = serializers.ReadOnlyField(source='author_user.username')
     author_user_id = serializers.ReadOnlyField(source='author_user.user_id')
 
 

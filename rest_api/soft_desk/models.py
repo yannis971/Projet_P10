@@ -1,7 +1,7 @@
 from django.db import models
 
 from django.contrib.auth.models import BaseUserManager
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth import get_user_model
 
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +18,14 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email)
         )
-        user.username = email
+        if first_name and isinstance(first_name, str):
+            user.first_name = first_name
+        else:
+            user.first_name = ""
+        if last_name and isinstance(last_name, str):
+            user.last_name = last_name
+        else:
+            user.last_name = ""
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -31,7 +38,7 @@ class UserManager(BaseUserManager):
             email,
             password=password,
         )
-        user.is_staff = True
+        user.staff = True
         user.save(using=self._db)
         return user
 
@@ -43,29 +50,43 @@ class UserManager(BaseUserManager):
             email,
             password=password,
         )
-        user.is_staff = True
-        user.is_admin = True
+        user.staff = True
+        user.admin = True
         user.save(using=self._db)
         return user
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
     """
     Entity User
     """
     user_id = models.BigAutoField(primary_key=True)
+    first_name = models.CharField(_('first name'), max_length=150, blank=True)
+    last_name = models.CharField(_('last name'), max_length=150, blank=True)
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,
         unique=True,
     )
-
-    is_admin = models.BooleanField(default=False) # a superuser
+    is_active = models.BooleanField(default=True)
+    staff = models.BooleanField(default=False) # a admin user; non super-user
+    admin = models.BooleanField(default=False) # a superuser
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email' # ça fonctionne pas quand on on crée un simple user forcer username avec email dans
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [] # Email & Password are required by default.
+
+    def get_full_name(self):
+        """
+        Return the first_name plus the last_name, with a space in between.
+        """
+        full_name = '%s %s' % (self.first_name, self.last_name)
+        return full_name.strip()
+
+    def get_short_name(self):
+        """Return the short name for the user."""
+        return self.first_name
 
     def __str__(self):
         return self.email
@@ -79,6 +100,16 @@ class User(AbstractUser):
         "Does the user have permissions to view the app `app_label`?"
         # Simplest possible answer: Yes, always
         return True
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        return self.staff
+
+    @property
+    def is_admin(self):
+        "Is the user a admin member?"
+        return self.admin
 
 
 class Project(models.Model):
@@ -111,10 +142,8 @@ class Contributor(models.Model):
 
 
     class Permission(models.TextChoices):
-        CREATE = 'C', _('Create')
         READ = 'R', _('Read')
         UPDATE = 'U', _('Update')
-        DELETE = 'D', _('Delete')
 
     permission = models.CharField(max_length=1, choices=Permission.choices, default=Permission.READ)
 
@@ -142,6 +171,7 @@ class Issue(models.Model):
     """
     Entity Issue
     """
+    issue_id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=128)
     desc = models.CharField(max_length=2048, blank=True)
     tag = models.CharField(max_length=16)
@@ -163,7 +193,7 @@ class Issue(models.Model):
         IN_PROGRESS = 'INP', _('In Progress')
         COMPLETED = 'COM', _('Completed')
         REJECTED = 'REJ', _('Rejected')
-        CLOSED = 'CLO', _('CLOSED')
+        CLOSED = 'CLO', _('Closed')
 
     status = models.CharField(max_length=3, choices=Status.choices, default=Status.NEW)
     author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name='author_user')
