@@ -1,5 +1,5 @@
 from django.contrib.auth.signals import user_logged_in
-from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework import mixins
@@ -19,7 +19,9 @@ from rest_framework import viewsets
 #Fin import pour viewsets
 
 from soft_desk.models import Comment, Contributor, Issue, Project, User
+from soft_desk.permissions import IsOwnerOrReadOnly
 from soft_desk.serializers import CommentSerializer, ContributorSerializer, IssueSerializer, ProjectSerializer, UserSerializer
+
 
 
 class UserSignUp(APIView):
@@ -43,7 +45,9 @@ class UserLogin(APIView):
             email = request.data['email']
             password = request.data['password']
 
-            user = User.objects.get(email=email, password=password)
+            #user = User.objects.get(email=email, password=password)
+            user = get_object_or_404(User, email=email, password=password)
+
             if user:
                 try:
                     payload = jwt_payload_handler(user)
@@ -77,7 +81,7 @@ class ProjectList(generics.ListCreateAPIView):
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
@@ -88,43 +92,58 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ContributorList(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = Contributor.objects.all()
+    permission_classes = (IsAuthenticated, )
     serializer_class = ContributorSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['project_id']
+
+    def get_queryset(self):
+        the_project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        return Contributor.objects.filter(project=the_project)
 
     def perform_create(self, serializer):
-        serializer.save(user_id=self.request.user.id)
+        the_project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        if self.request.user == the_project.author_user:
+            serializer.save()
+        else:
+            res = {'detail': 'Seul le créateur du projet peut ajouter des contributeurs sur le projet'}
+            return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
 class ContributorDelete(generics.DestroyAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = Contributor.objects.all()
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     serializer_class = ContributorSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['project_id', 'user_id']
+
+    def get_queryset(self):
+        return get_object_or_404(Contributor,
+                        project_project_id=self.kwargs['project_id'],
+                        user_user_id=self.kwargs['user_id'])
 
     def perform_destroy(self, instance):
-        if instance.user_id == self.request.user.id:
+        if instance.user_id == self.request.user.user_id:
             instance.delete()
+        else:
+            res = {'detail': 'Seul le créateur du projet peut supprimer des contributeurs sur le projet'}
+            return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
 class IssueList(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['project_id']
+
+    def get_queryset(self):
+        the_project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        return Issue.objects.filter(project=the_project)
 
     def perform_create(self, serializer):
-        serializer.save(author_user_id=self.request.user.id)
+        serializer.save(author_user_id=self.request.user.user_id)
 
 
 class IssueUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (AllowAny,)
-    queryset = Issue.objects.all()
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
+    #queryset = Issue.objects.all()
     serializer_class = IssueSerializer
+
+    def get_queryset(self):
+        return get_object_or_404(Issue, pk=self.kwargs['issue_id'])
 
     def get(self, request, *args, **kwargs):
         res = {
@@ -138,21 +157,28 @@ class IssueUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CommentList(generics.ListCreateAPIView):
-    permission_classes = (AllowAny,)
-    queryset = Comment.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['project_id']
+
+    def get_queryset(self):
+        the_issue = get_object_or_404(Issue, pk=self.kwargs['issue_id'])
+        return Comment.objects.filter(issue=the_issue)
 
     def perform_create(self, serializer):
-        serializer.save(author_user_id=self.request.user.id)
+        serializer.save(author_user_id=self.request.user.user_id)
 
 
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (AllowAny,)
-    queryset = Comment.objects.all()
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     serializer_class = CommentSerializer
 
+    def get_queryset(self):
+        return get_object_or_404(Comment, pk=self.kwargs['comment_id'])
+
+    def patch(self, request, *args, **kwargs):
+        res = {
+            'detail': 'Méthode « PATCH » non autorisée.'}
+        return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 """ DEBUT VIEWSETS """
 
