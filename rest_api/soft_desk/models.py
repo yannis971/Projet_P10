@@ -122,11 +122,12 @@ class Project(models.Model):
 
 
     class Type(models.TextChoices):
-        APPLICATION = 'APPL', _('Application')
-        PRODUCT = 'PROD', _('Product')
-        PROJECT = 'PROJ', _('Project')
+        BACK_END = 'B', _('Back-End')
+        FRONT_END = 'F', _('Front-End')
+        IOS = 'I', _('iOS')
+        ANDROID = 'A', _('Android')
 
-    type = models.CharField(max_length=4, choices=Type.choices, default=Type.APPLICATION)
+    type = models.CharField(max_length=1, choices=Type.choices, default=Type.BACK_END)
     author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
@@ -142,10 +143,10 @@ class Contributor(models.Model):
 
 
     class Permission(models.TextChoices):
-        READ = 'R', _('Read')
-        UPDATE = 'U', _('Update')
+        CR = 'CR  ', _('Create and Read')
+        CRUD = 'CRUD', _('Create Read Update Delete')
 
-    permission = models.CharField(max_length=1, choices=Permission.choices, default=Permission.READ)
+    permission = models.CharField(max_length=4, choices=Permission.choices, default=Permission.CR)
 
 
     class Role(models.TextChoices):
@@ -174,7 +175,14 @@ class Issue(models.Model):
     issue_id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=128)
     desc = models.CharField(max_length=2048, blank=True)
-    tag = models.CharField(max_length=16)
+
+
+    class Tag(models.TextChoices):
+        BUG_FIXING = 'BF', _('Bug Fixing')
+        NEW_FEATURE = 'NF', _('New Feature')
+        TASK = 'TA', _('Task')
+
+    tag = models.CharField(max_length=2, choices=Tag.choices, default=Tag.BUG_FIXING)
 
 
     class Priority(models.TextChoices):

@@ -1,5 +1,7 @@
 from django.contrib.auth.signals import user_logged_in
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
+
 
 from rest_framework import generics
 from rest_framework import mixins
@@ -73,8 +75,13 @@ class UserLogin(APIView):
 
 class ProjectList(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        """
+        Liste des projets créés par l'utilisateur ou des projets sur lesquels l'utilisateur est contributeur
+        """
+        return Project.objects.filter(Q(author_user=self.request.user) | Q(project_id__in=Contributor.objects.filter(user=self.request.user).values_list('project_project_id')))
 
     def perform_create(self, serializer):
         serializer.save(author_user=self.request.user)
