@@ -1,4 +1,4 @@
-
+"""
 from django.urls import path, include
 #from rest_framework.routers import DefaultRouter
 
@@ -16,7 +16,7 @@ urlpatterns = [
     path('projects/<int:project_id>/issues/<int:issue_id>>/comments/', views.CommentList.as_view(), name='comment-list'),
     path('projects/<int:project_id>/issues/<int:issue_id>>/comments/<int:comment_id>', views.CommentDetail.as_view(), name='comment-detail'),
 ]
-
+"""
 """
 router = DefaultRouter()
 router.register(r'signup/', views.UserSignUpViewSet)
