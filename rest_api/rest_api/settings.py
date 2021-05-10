@@ -154,3 +154,7 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 
 }
+
+#en cas d'oubli du slash de fin certaines méthodes ne fonctionnent pas
+# en mettant APPEND_SLASH à False la redirection de l'url fonctionne 
+APPEND_SLASH=False
