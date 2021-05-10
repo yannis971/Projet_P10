@@ -17,7 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-#from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import DefaultRouter,  NestedSimpleRouter
 from soft_desk import views
 
@@ -55,5 +54,5 @@ urlpatterns = [
     path('', include(project_router.urls)),
     path('', include(contributor_router.urls)),
     path('', include(issue_router.urls)),
-    #path('', include(comment_router.urls)),
+    path('', include(comment_router.urls)),
 ]

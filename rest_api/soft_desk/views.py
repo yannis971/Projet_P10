@@ -22,11 +22,12 @@ from rest_framework import viewsets
 
 from soft_desk.models import Comment, Contributor, Issue, Project, User
 from soft_desk.permissions import IsOwnerOrReadOnly
+from soft_desk.permissions import IsAuthenticatedOwner
 from soft_desk.permissions import IsAuthenticatedOwnerOrContributor
 from soft_desk.serializers import CommentSerializer, ContributorSerializer, IssueSerializer, ProjectSerializer, UserSerializer
 
 
-
+"""
 class UserSignUp(APIView):
     # Allow any user (authenticated or not) to access this url
     permission_classes = (AllowAny,)
@@ -78,9 +79,6 @@ class ProjectList(generics.ListCreateAPIView):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
-        """
-        Liste des projets créés par l'utilisateur ou des projets sur lesquels l'utilisateur est contributeur
-        """
         list_project_id = [q['project_id'] for q in Contributor.objects.filter(user=self.request.user).values('project_id')]
         return Project.objects.filter(Q(author_user=self.request.user) | Q(project_id__in=list_project_id))
 
@@ -188,7 +186,7 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
             'detail': 'Méthode « PATCH » non autorisée.'}
         return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
+"""
 """ DEBUT VIEWSETS """
 
 
@@ -206,7 +204,6 @@ class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    # Allow any user (authenticated or not) to access this url
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -244,11 +241,22 @@ class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     serializer_class = ProjectSerializer
 
-    def get_queryset(self):
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'list' or self.action == 'create':
+            permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
+        elif self.action == 'retrieve':
+            permission_classes = (IsAuthenticatedOwnerOrContributor,)
+        else:
+            permission_classes = (IsAuthenticatedOwner,)
+        return [permission() for permission in permission_classes]
 
+
+    def get_queryset(self):
         """
         Liste des projets créés par l'utilisateur ou des projets sur lesquels l'utilisateur est contributeur
         """
@@ -263,8 +271,17 @@ class ContributorViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
-    permission_classes = (IsAuthenticatedOwnerOrContributor,)
     serializer_class = ContributorSerializer
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'list':
+            permission_classes = (IsAuthenticatedOwnerOrContributor,)
+        else:
+            permission_classes = (IsAuthenticatedOwner,)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -296,8 +313,18 @@ class IssueViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     serializer_class = IssueSerializer
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        print("self.action :", self.action)
+        if self.action == 'list' or self.action == 'create':
+            permission_classes = (IsAuthenticatedOwnerOrContributor,)
+        else:
+            permission_classes = (IsAuthenticatedOwner,)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -312,6 +339,15 @@ class IssueViewSet(mixins.CreateModelMixin,
         else:
             return super().create(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        the_issue = get_object_or_404(Issue, pk=self.kwargs['pk'])
+        data_issue_id = request.data['issue_id']
+        if the_issue.issue_id != data_issue_id:
+            res = {'detail': 'Operation illicite issue_id dans l\'URL (' + str(the_issue.issue_id) + ') différent de celui passé dans l\'objet JSON (' + str(data_issue_id) + ')'}
+            return Response(res, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return super().update(request, *args, **kwargs)
+"""
     def destroy(self, request, *args, **kwargs):
         the_issue = get_object_or_404(Issue, pk=self.kwargs['pk'])
         if self.request.user != the_issue.author_user:
@@ -319,24 +355,24 @@ class IssueViewSet(mixins.CreateModelMixin,
             return Response(res, status=status.HTTP_403_FORBIDDEN)
         else:
             return super().destroy(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        the_issue = get_object_or_404(Issue, pk=self.kwargs['pk'])
-        if self.request.user != the_issue.author_user:
-            res = {'detail': 'L\'utilisateur n\'est pas habilité à effectuer cette opération'}
-            return Response(res, status=status.HTTP_403_FORBIDDEN)
-        else:
-            return super().update(request, *args, **kwargs)
-
+"""
 
 class CommentViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
-    serializer_class = IssueSerializer
+    serializer_class = CommentSerializer
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'list' or self.action == 'create':
+            permission_classes = [IsAuthenticatedOwnerOrContributor]
+        else:
+            permission_classes = [IsAuthenticatedOwner]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        the_issue = get_object_or_404(Project, pk=self.kwargs['issue_pk'])
+        the_issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
         return Comment.objects.filter(issue=the_issue).order_by('comment_id')
-
 
     def create(self, request, *args, **kwargs):
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
