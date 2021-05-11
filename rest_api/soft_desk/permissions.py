@@ -2,6 +2,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from soft_desk.models import Contributor, Comment, Project, Issue, Project
 
+class ActionNotAllowed(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of an object to edit it.
+    """
+    def has_permission(self, request, view):
+        return False
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -49,13 +56,8 @@ class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
                 the_object = the_project
 
         user_is_owner = bool(the_object.author_user == request.user)
-        print("request.method :", request.method)
-        print("user_is_authenticated :", user_is_authenticated)
-        print("user_is_owner :", user_is_owner)
-        print("user_is_contributor :", user_is_contributor)
 
         return bool(user_is_authenticated and (user_is_contributor or user_is_owner))
-
 
 
 class IsAuthenticatedOwner(permissions.BasePermission):
@@ -66,7 +68,10 @@ class IsAuthenticatedOwner(permissions.BasePermission):
     def has_permission(self, request, view):
         from soft_desk.views import CommentViewSet, ContributorViewSet, IssueViewSet, ProjectViewSet
         user_is_authenticated = bool(request.user and request.user.is_authenticated)
-        the_project = get_object_or_404(Project, pk=view.kwargs['project_pk'])
+        if isinstance(view, ProjectViewSet):
+            the_project = get_object_or_404(Project, pk=view.kwargs['pk'])
+        else:
+            the_project = get_object_or_404(Project, pk=view.kwargs['project_pk'])
         if isinstance(view, ContributorViewSet):
             the_object = the_project
         elif isinstance(view, IssueViewSet):
