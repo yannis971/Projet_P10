@@ -145,7 +145,7 @@ class IssueViewSet(mixins.CreateModelMixin,
         """
         if self.action == 'list' or self.action == 'create':
             permission_classes = (IsAuthenticatedOwnerOrContributor,)
-        elif self.action == 'update' or self.action == 'destroy':
+        elif self.action == 'destroy' or self.action == 'update':
             permission_classes = (IsAuthenticatedOwner,)
         else:
             permission_classes = (ActionNotAllowed,)
@@ -160,7 +160,6 @@ class IssueViewSet(mixins.CreateModelMixin,
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         the_author_user = self.request.user
         serializer.save(assignee_user=the_assignee_user, author_user=the_author_user, project=the_project)
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
