@@ -111,6 +111,13 @@ class User(AbstractBaseUser):
         "Is the user a admin member?"
         return self.admin
 
+    
+    def is_contributor(self, the_project):
+        try:
+            return isinstance(the_project, Project) and Contributor.objects.get(user=self, project=the_project)
+        except Contributor.DoesNotExist:
+            return False
+
 
 class Project(models.Model):
     """

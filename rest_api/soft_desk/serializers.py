@@ -6,6 +6,7 @@ from soft_desk.models import Project
 from soft_desk.models import User
 
 
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -40,6 +41,14 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = ['issue_id', 'title', 'desc', 'tag', 'priority', 'project_id', 'status', 'author_user_id', 'assignee_user_id', 'time_created']
+
+    def validate(self, data):
+        request = self._kwargs['context']['request']
+        the_project = Project.objects.get(pk=request.parser_context['kwargs']['project_pk'])
+        the_assignee_user = User.objects.get(pk=self._kwargs['data']['assignee_user_id'])
+        if not the_assignee_user.is_contributor(the_project):
+            raise serializers.ValidationError(f"assignee_user ({the_assignee_user.user_id} - {the_assignee_user}) is not a contributor to the project ({the_project.project_id} - {the_project})")
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
