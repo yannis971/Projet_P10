@@ -2,7 +2,7 @@
 ## Créer une API sécurisée RESTful en utilisant Django REST
 ### 1) Description de l'application
 
-Ce projet consiste à développer une API sécurisée, pour le compte de la société SoftDesk, permettant d’accéder à une application de suivi de développement logiciel
+Ce projet consiste à développer une API sécurisée, pour le compte de la société SoftDesk, permettant d’accéder à une application de suivi de développement logiciel.
 
 
 #### 1.1) Frameworks utilisés
@@ -25,7 +25,7 @@ Ce projet consiste à développer une API sécurisée, pour le compte de la soci
 
 #### 2.1) Le projet `rest_api`
 
-C'est le projet au sens "Django" obtenu via la commande :
+C'est le projet au sens "Django" du terme, obtenu via la commande :
 
 `django-admin startproject rest_api`
 
@@ -41,7 +41,7 @@ A l'intérieur de ce dossier projet, se trouvent les applications.
 
 ![](images/application_rest_api.png)
 
-Elle est créée automatiquement lors de la création dy projet `rest_api`.
+Elle est créée automatiquement lors de la création du projet `rest_api`.
 
 Elle contient notamment les 2 fichiers :
 
@@ -52,14 +52,14 @@ Elle contient notamment les 2 fichiers :
 
 ![](images/application_soft_desk.png)
 
-C'est l'application qui héberge le code de l'API.
+C'est l'application qui héberge le code de l'API :
 - `admin.py` : pour pouvoir accéder aux tables via l'administration de Django
 - `models.py` : module décrivant le modèle de données
   - `User` : classe personnalisée héritant de `django.contrib.auth.models.AbstractBaseUser`
   - `Project` : classe définissant un projet
   - `Contributor` : classe définissant un contributeur
   - `Issue` : classe définissant un problème, une anomalie, une tâche dans un projet
-  - `Comment` : classe
+  - `Comment` : classe définissant un commentaire posté sur un problème ou une anomalie
 - `permissions.py` : ensemble de classes définissant des permissions customisées
 - `serializers.py` : module contenant les classes permettant de "sérialiser" les objects de la base de données
 - `views.py` : module contenant l'ensemble des classes de type ViewSet appelées par l'API
@@ -75,7 +75,7 @@ C'est l'application qui héberge le code de l'API.
 ![](images/SPECIFIC_SETTINGS.png)
 
 
-#### GitFlow du projet
+#### 2.5) GitFlow du projet
 
 Le projet est organisé en 2 branches :
 
@@ -86,6 +86,7 @@ Le projet est organisé en 2 branches :
 ### 3) Installation du projet Projet_P10 sur votre machine
 
 Sur votre poste de travail, créer un dossier dans lequel vous allez installer le projet.
+
 On nommera par exemple ce dossier `projects`. (vous pouvez le nommer autrement, c'est juste pour avoir une référence dans la suite des explications)
 
 Aller sur le dépôt github : https://github.com/yannis971/Projet_P10
@@ -100,7 +101,7 @@ Dans l'onglet **<> Code** de la page ci-dessus, cliquer sur le bouton **Code** p
 
 Placer le fichier zip dans le dossier `projects` et le dézipper.
 
-Ouvrir un terminal et se déplacer dans la racine du projet dossier '`projects/Projet_P10-main/`'
+Ouvrir un terminal et se déplacer dans la racine du projet dossier `projects/Projet_P10-main/`
 
 Passer à l'étape 4 pour configurer l'environnement virtuel
 
@@ -135,6 +136,7 @@ Si la commande `pip3 --version` renvoie une erreur alors il convient d'installer
 `sudo apt-get update && sudo apt-get install python3-pip`
 
 Si l'installation a réussi, la commande vous renverra une ligne comme indiqué ci-dessous
+
 `pip 20.2.3 from /soft_desk/yannis/.local/lib/python3.8/site-packages/pip (python 3.8)`
 
 #### 4.2) Créer un environnement virtuel et l'activer
@@ -159,7 +161,7 @@ Toujours à la racine du projet, lancer l'une des 2 commandes suivantes :
 
 #### 5.1) Installer Postman ou y accéder directement sur le Web
 
-Suivre les instructions sur le site ci-dessous :
+Pour installer ou utiliser Postman, suivre les instructions sur le site ci-dessous :
 
 https://www.postman.com/downloads/
 
@@ -167,7 +169,7 @@ https://www.postman.com/downloads/
 
 Créer une nouvelle collection.
 
-Pour alimenter les endpoints de cette nouvelle collection, vous pouvez importer la collection soft_desk_api_collection que j'ai partagée publiquement :
+Pour alimenter les endpoints de cette nouvelle collection, vous pouvez importer la collection soft_desk_api_collection que j'ai partagée publiquement via le lien ci-dessous :
 
 https://www.getpostman.com/collections/daef1894f692f4080b97
 
@@ -192,6 +194,7 @@ Lancer le serveur Django en tapant la commande :
 
 `./manage.py runserver`
 
+Puis passer à l'étape 6.2 pour tester l'API.
 
 #### 6.2) Tester l'API via Postman
 
@@ -242,7 +245,13 @@ Après avoir cliqué sur le bouton **SEND**, on observe la réponse HTTP suivant
 
 ##### 6.2.4) Tester un point de terminaison nécessitant un objet JSON dans la requete
 
+**Renseigner le Token**
+
+Voir plus haut.
+
 **Preparer la requête**
+
+Valoriser l'objet JSON dans l'onglet `Body`.
 
 ![](images/creer_projet_request.png)
 
