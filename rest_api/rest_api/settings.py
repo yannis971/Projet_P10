@@ -124,7 +124,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Mes modifications
+# SPECIFIC SETTINGS 
 
 AUTH_USER_MODEL = 'soft_desk.User'
 
@@ -144,17 +144,10 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 import datetime
 JWT_AUTH = {
-
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=0, hours=4, minutes=00),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-
 }
-
-#en cas d'oubli du slash de fin certaines méthodes ne fonctionnent pas
-# en mettant APPEND_SLASH à False la redirection de l'url fonctionne 
-APPEND_SLASH=False
