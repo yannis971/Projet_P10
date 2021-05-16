@@ -34,13 +34,13 @@ contributor_router = NestedSimpleRouter(project_router, r'projects', lookup='pro
 contributor_router.register(r'users', views.ContributorViewSet, basename='contributors')
 ## generates:
 # /projects/{project_pk}/users/
-# /projects/{project_pk}/users/{user_pk}/
+# /projects/{project_pk}/users/{pk}/
 
 issue_router = NestedSimpleRouter(project_router, r'projects', lookup='project')
 issue_router.register(r'issues', views.IssueViewSet, basename='issues')
 ## generates:
 # /projects/{project_pk}/issues/
-# /projects/{project_pk}/issues/{issue_pk}/
+# /projects/{project_pk}/issues/{pk}/
 
 comment_router = NestedSimpleRouter(issue_router, r'issues', lookup='issue')
 comment_router.register(r'comments', views.CommentViewSet, basename='comments')
