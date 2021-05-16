@@ -151,3 +151,5 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=0, hours=4, minutes=00),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
+
+APPEND_SLASH = True

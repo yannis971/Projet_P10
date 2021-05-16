@@ -111,12 +111,17 @@ class User(AbstractBaseUser):
         "Is the user a admin member?"
         return self.admin
 
-    
     def is_contributor(self, the_project):
         try:
-            return isinstance(the_project, Project) and Contributor.objects.get(user=self, project=the_project)
+            assert(isinstance(the_project, Project))
+            contributor = Contributor.objects.get(user=self, project=the_project)
+        except AssertionError:
+            return False
         except Contributor.DoesNotExist:
             return False
+        if contributor:
+            return True
+
 
 
 class Project(models.Model):
@@ -231,7 +236,7 @@ class Comment(models.Model):
     Entity Comment
     """
     comment_id = models.BigAutoField(primary_key=True)
-    description = models.CharField(max_length=1024, blank=True)
+    description = models.CharField(max_length=1024)
     author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     issue = models.ForeignKey(to=Issue, on_delete=models.CASCADE)
     time_created = models.DateTimeField(auto_now_add=True)
