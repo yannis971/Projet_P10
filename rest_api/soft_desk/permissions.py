@@ -67,7 +67,7 @@ class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
         if isinstance(obj, Contributor) or isinstance(obj, Issue):
             the_project = obj.project
         elif isinstance(obj, Comment):
-            the_project = object.issue.project
+            the_project = obj.issue.project
         else:
             the_project = obj
         user_is_contributor = request.user.is_contributor(the_project)

@@ -124,14 +124,14 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# SPECIFIC SETTINGS 
+# SPECIFIC SETTINGS
 
 AUTH_USER_MODEL = 'soft_desk.User'
 
 REST_FRAMEWORK = {
-    #Paramètres de pagination
+    # Paramètres de pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 1000,
     #Classes de permission
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
