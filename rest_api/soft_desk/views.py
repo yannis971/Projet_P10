@@ -7,6 +7,9 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
 
+from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import ValidationError
+
 from rest_framework.permissions import  AllowAny
 from rest_framework.response import Response
 
@@ -15,7 +18,7 @@ from rest_framework_jwt.settings import api_settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
-
+from soft_desk.mixins import CustomUpdateModelMixin
 from soft_desk.models import Comment, Contributor, Issue, Project, User
 from soft_desk.permissions import CommentPermission
 from soft_desk.permissions import ContributorPermission
@@ -70,7 +73,7 @@ class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(CustomUpdateModelMixin, viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = (ProjectPermission,)
 
@@ -89,20 +92,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save(author_user=self.request.user)
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        data_to_update = request.data
-        if 'title' not in data_to_update:
-            data_to_update['title'] = instance.title
-        serializer = self.get_serializer(instance, data=data_to_update, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        res = {
-            'detail': 'Méthode « PATCH » non autorisée.'}
-        return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return self.custom_update(request, 'title', **kwargs)
 
 
 class ContributorViewSet(mixins.CreateModelMixin,
@@ -116,32 +106,27 @@ class ContributorViewSet(mixins.CreateModelMixin,
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         return Contributor.objects.filter(project=the_project).order_by('user_id')
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    def get_object(self):
+        the_user = get_object_or_404(User, pk=self.kwargs['pk'])
+        the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         try:
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        except IntegrityError:
-            res = {'this contributor already exists'}
-            return Response(res, status=status.HTTP_400_BAD_REQUEST)
+            obj = Contributor.objects.get(project=the_project, user=the_user)
+        except Contributor.DoesNotExist:
+            raise NotFound("The contributor does not exist")
+        else:
+            return obj
 
     def perform_create(self, serializer):
         the_user = get_object_or_404(User, pk=serializer._kwargs['data']['user_id'])
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        serializer.save(user=the_user, project=the_project)
-
-    def destroy(self, request, *args, **kwargs):
-        the_user = get_object_or_404(User, pk=self.kwargs['pk'])
-        the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        instance = Contributor.objects.get(project=the_project, user=the_user)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            serializer.save(user=the_user, project=the_project)
+        except IntegrityError:
+            raise ValidationError("this contributor already exists")
 
 
 class IssueViewSet(mixins.CreateModelMixin,
-                   mixins.UpdateModelMixin,
+                   CustomUpdateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
@@ -156,26 +141,16 @@ class IssueViewSet(mixins.CreateModelMixin,
         the_assignee_user = get_object_or_404(User, pk=serializer._kwargs['data']['assignee_user_id'])
         the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         the_author_user = self.request.user
-        serializer.save(assignee_user=the_assignee_user, author_user=the_author_user, project=the_project)
+        try:
+            serializer.save(assignee_user=the_assignee_user, author_user=the_author_user, project=the_project)
+        except IntegrityError:
+            raise ValidationError("this issue already exists")
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        data_to_update = request.data
-        if 'title' not in data_to_update:
-            data_to_update['title'] = instance.title
-        serializer = self.get_serializer(instance, data=data_to_update, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        res = {
-            'detail': 'Méthode « PATCH » non autorisée.'}
-        return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return self.custom_update(request, 'title', **kwargs)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(CustomUpdateModelMixin, viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (CommentPermission,)
 
@@ -189,17 +164,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author_user=the_author_user, issue=the_issue)
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        data_to_update = request.data
-        if 'description' not in data_to_update:
-            data_to_update['description'] = instance.title
-        serializer = self.get_serializer(instance, data=data_to_update, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        res = {
-            'detail': 'Méthode « PATCH » non autorisée.'}
-        return Response(res, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return self.custom_update(request, 'description', **kwargs)
