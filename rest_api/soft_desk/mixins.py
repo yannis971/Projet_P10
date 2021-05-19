@@ -2,11 +2,12 @@ from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework import status
 
+
 class CustomUpdateModelMixin(mixins.UpdateModelMixin):
     """
-    Update a model instance.
+    Customized class to update a model instance.
     """
-    def custom_update(self, request, *args , **kwargs):
+    def custom_update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         data_to_update = request.data

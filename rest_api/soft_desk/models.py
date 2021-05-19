@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 
 from django.utils.translation import gettext_lazy as _
 
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password, first_name=None, last_name=None):
         """
@@ -69,13 +70,13 @@ class User(AbstractBaseUser):
         unique=True,
     )
     is_active = models.BooleanField(default=True)
-    staff = models.BooleanField(default=False) # a admin user; non super-user
-    admin = models.BooleanField(default=False) # a superuser
+    staff = models.BooleanField(default=False)  # a admin user; non super-user
+    admin = models.BooleanField(default=False)  # a superuser
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [] # Email & Password are required by default.
+    REQUIRED_FIELDS = []  # Email & Password are required by default.
 
     def get_full_name(self):
         """
@@ -123,7 +124,6 @@ class User(AbstractBaseUser):
             return True
 
 
-
 class Project(models.Model):
     """
     Entity Project
@@ -131,7 +131,6 @@ class Project(models.Model):
     project_id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=128)
     description = models.CharField(max_length=1024, blank=True)
-
 
     class Type(models.TextChoices):
         BACK_END = 'B', _('Back-End')
@@ -153,13 +152,11 @@ class Contributor(models.Model):
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
 
-
     class Permission(models.TextChoices):
         CR = 'CR  ', _('Create and Read')
         CRUD = 'CRUD', _('Create Read Update Delete')
 
     permission = models.CharField(max_length=4, choices=Permission.choices, default=Permission.CR)
-
 
     class Role(models.TextChoices):
         DEVELOPER = 'DEV', _('Developer')
@@ -168,7 +165,6 @@ class Contributor(models.Model):
         IN_CHARGE_OF = 'ICO', _('In Charge Of')
 
     role = models.CharField(max_length=3, choices=Role.choices, default=Role.CREATOR)
-
 
     class Meta:
         """
@@ -188,14 +184,12 @@ class Issue(models.Model):
     title = models.CharField(max_length=128)
     desc = models.CharField(max_length=2048, blank=True)
 
-
     class Tag(models.TextChoices):
         BUG_FIXING = 'BF', _('Bug Fixing')
         NEW_FEATURE = 'NF', _('New Feature')
         TASK = 'TA', _('Task')
 
     tag = models.CharField(max_length=2, choices=Tag.choices, default=Tag.BUG_FIXING)
-
 
     class Priority(models.TextChoices):
         LOW = 'L', _('Low')
@@ -206,7 +200,6 @@ class Issue(models.Model):
 
     priority = models.CharField(max_length=1, choices=Priority.choices, default=Priority.NORMAL)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
-
 
     class Status(models.TextChoices):
         NEW = 'NEW', _('New')
@@ -219,7 +212,6 @@ class Issue(models.Model):
     author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name='author_user')
     assignee_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name='assignee_user')
     time_created = models.DateTimeField(auto_now_add=True)
-
 
     class Meta:
         """
