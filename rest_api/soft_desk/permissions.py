@@ -1,26 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from rest_framework import exceptions
-from soft_desk.models import Contributor, Comment, Project, Issue, Project, User
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import exceptions
 
-
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow owners of an object to edit it.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        # Write permissions are only allowed to the owner of the object.
-        if hasattr(obj, 'author_user'):
-            return obj.author_user == request.user
-        else:
-            return False
+from soft_desk.models import Contributor, Comment, Issue, Project
 
 
 class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
@@ -29,7 +12,7 @@ class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        from soft_desk.views import CommentViewSet, ContributorViewSet, IssueViewSet, ProjectViewSet
+        from soft_desk.views import CommentViewSet, IssueViewSet, ProjectViewSet
         user_is_authenticated = bool(request.user and request.user.is_authenticated)
         if isinstance(view, ProjectViewSet):
             the_project = get_object_or_404(Project, pk=view.kwargs['pk'])
@@ -69,12 +52,14 @@ class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
 
 class IsAuthenticatedOwner(permissions.BasePermission):
     """
-    The request is authenticated as a user, or is a read-only request.
+    The request is authenticated as a user
     """
 
     def has_permission(self, request, view):
-        from soft_desk.views import CommentViewSet, ContributorViewSet, IssueViewSet, ProjectViewSet
+        from soft_desk.views import ProjectViewSet
         user_is_authenticated = bool(request.user and request.user.is_authenticated)
+        for (attr, value) in view.__dict__.items():
+            print(attr, ":", value)
         if isinstance(view, ProjectViewSet):
             the_project = get_object_or_404(Project, pk=view.kwargs['pk'])
         else:
@@ -93,7 +78,7 @@ class IsAuthenticatedOwner(permissions.BasePermission):
         return bool(user_is_authenticated and user_is_owner)
 
 
-class GenericBasePermission(permissions.BasePermission):
+class GenericModelPermission(permissions.BasePermission):
     def __init__(self, model):
         super()
         self.model = model
@@ -124,7 +109,7 @@ class GenericBasePermission(permissions.BasePermission):
             raise exceptions.MethodNotAllowed(request.method)
 
 
-class ProjectPermission(GenericBasePermission):
+class ProjectPermission(GenericModelPermission):
     def __init__(self):
         super().__init__(model=Project)
         self.permissions_view_map['list'] = (IsAuthenticated,)
@@ -134,7 +119,7 @@ class ProjectPermission(GenericBasePermission):
         self.permissions_object_map['destroy'] = (IsAuthenticatedOwner,)
 
 
-class ContributorPermission(GenericBasePermission):
+class ContributorPermission(GenericModelPermission):
     def __init__(self):
         super().__init__(model=Contributor)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)
@@ -142,7 +127,7 @@ class ContributorPermission(GenericBasePermission):
         self.permissions_object_map['destroy'] = (IsAuthenticatedOwner,)
 
 
-class IssuePermission(GenericBasePermission):
+class IssuePermission(GenericModelPermission):
     def __init__(self):
         super().__init__(model=Issue)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)
@@ -151,7 +136,7 @@ class IssuePermission(GenericBasePermission):
         self.permissions_object_map['destroy'] = (IsAuthenticatedOwner,)
 
 
-class CommentPermission(GenericBasePermission):
+class CommentPermission(GenericModelPermission):
     def __init__(self):
         super().__init__(model=Comment)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)

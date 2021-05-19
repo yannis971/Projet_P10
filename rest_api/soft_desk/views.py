@@ -10,13 +10,10 @@ from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import ValidationError
 
-from rest_framework.permissions import  AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from rest_framework_jwt.settings import api_settings
-
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 from soft_desk.mixins import CustomUpdateModelMixin
 from soft_desk.models import Comment, Contributor, Issue, Project, User
@@ -25,6 +22,9 @@ from soft_desk.permissions import ContributorPermission
 from soft_desk.permissions import IssuePermission
 from soft_desk.permissions import ProjectPermission
 from soft_desk.serializers import CommentSerializer, ContributorSerializer, IssueSerializer, ProjectSerializer, UserSerializer
+
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
