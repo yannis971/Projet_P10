@@ -28,6 +28,10 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    """
+    class UserSignUpViewSet manages the following endpoint :
+    /signup/
+    """
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -37,6 +41,10 @@ class UserSignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    class UserLoginViewSet manages the following endpoint :
+    /login/
+    """
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -74,13 +82,15 @@ class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class ProjectViewSet(CustomUpdateModelMixin, viewsets.ModelViewSet):
+    """
+    class ProjectViewSet manages the following endpoints :
+    /projects/
+    /projects/{pk}/
+    """
     serializer_class = ProjectSerializer
     permission_classes = (ProjectPermission,)
 
     def get_queryset(self):
-        """
-        Liste des projets créés par l'utilisateur ou des projets sur lesquels l'utilisateur est contributeur
-        """
         if self.action == 'list':
             Project.objects.all()
             list_project_id = [q['project_id'] for q in Contributor.objects.filter(user=self.request.user).values('project_id')]
@@ -99,6 +109,11 @@ class ContributorViewSet(mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          mixins.ListModelMixin,
                          viewsets.GenericViewSet):
+    """
+    class ContributorViewSet manages the following endpoints :
+    /projects/{project_pk}/users/
+    /projects/{project_pk}/users/{pk}/
+    """
     serializer_class = ContributorSerializer
     permission_classes = (ContributorPermission,)
 
@@ -130,6 +145,11 @@ class IssueViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
+    """
+    class IssueViewSet manages the following endpoints :
+    /projects/{project_pk}/issues/
+    /projects/{project_pk}/issues/{pk}/
+    """
     serializer_class = IssueSerializer
     permission_classes = (IssuePermission,)
 
@@ -151,6 +171,11 @@ class IssueViewSet(mixins.CreateModelMixin,
 
 
 class CommentViewSet(CustomUpdateModelMixin, viewsets.ModelViewSet):
+    """
+    class IssueViewSet manages the following endpoints :
+    /projects/{project_pk}/issues/{issue_pk}/comments/
+    /projects/{project_pk}/issues/{issue_pk}/comments/{pk}/
+    """
     serializer_class = CommentSerializer
     permission_classes = (CommentPermission,)
 
