@@ -8,7 +8,7 @@ from soft_desk.models import Contributor, Comment, Issue, Project
 
 class IsAuthenticatedOwnerOrContributor(permissions.BasePermission):
     """
-    The request is authenticated as a user, or is a read-only request.
+    The request is authenticated as a user, or a contributor to the projet.
     """
 
     def has_permission(self, request, view):
@@ -58,8 +58,6 @@ class IsAuthenticatedOwner(permissions.BasePermission):
     def has_permission(self, request, view):
         from soft_desk.views import ProjectViewSet
         user_is_authenticated = bool(request.user and request.user.is_authenticated)
-        for (attr, value) in view.__dict__.items():
-            print(attr, ":", value)
         if isinstance(view, ProjectViewSet):
             the_project = get_object_or_404(Project, pk=view.kwargs['pk'])
         else:
@@ -79,6 +77,13 @@ class IsAuthenticatedOwner(permissions.BasePermission):
 
 
 class GenericModelPermission(permissions.BasePermission):
+    """
+    Generic Model Permission
+    if the view contains a pk argument then the class returns object level permissions
+    else if the view.action is in permissions_view_map it returns the matching
+    view level permissions
+    else it raises a MethodNotAllowed exception
+    """
     def __init__(self, model):
         super()
         self.model = model
@@ -110,6 +115,9 @@ class GenericModelPermission(permissions.BasePermission):
 
 
 class ProjectPermission(GenericModelPermission):
+    """
+    class ProjectPermission based on GenericModelPermission
+    """
     def __init__(self):
         super().__init__(model=Project)
         self.permissions_view_map['list'] = (IsAuthenticated,)
@@ -120,6 +128,9 @@ class ProjectPermission(GenericModelPermission):
 
 
 class ContributorPermission(GenericModelPermission):
+    """
+    class ContributorPermission based on GenericModelPermission
+    """
     def __init__(self):
         super().__init__(model=Contributor)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)
@@ -128,6 +139,9 @@ class ContributorPermission(GenericModelPermission):
 
 
 class IssuePermission(GenericModelPermission):
+    """
+    class IssuePermission based on GenericModelPermission
+    """
     def __init__(self):
         super().__init__(model=Issue)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)
@@ -137,6 +151,9 @@ class IssuePermission(GenericModelPermission):
 
 
 class CommentPermission(GenericModelPermission):
+    """
+    class CommentPermission based on GenericModelPermission
+    """
     def __init__(self):
         super().__init__(model=Comment)
         self.permissions_view_map['list'] = (IsAuthenticatedOwnerOrContributor,)
