@@ -54,6 +54,8 @@ Elle contient notamment les 2 fichiers :
 
 C'est l'application qui héberge le code de l'API :
 - `admin.py` : pour pouvoir accéder aux tables via l'administration de Django
+- `apps.py` : classe définissant la confi de l'application
+- `mixins.py` : classe définissant des "mixins" customisés
 - `models.py` : module décrivant le modèle de données
   - `User` : classe personnalisée héritant de `django.contrib.auth.models.AbstractBaseUser`
   - `Project` : classe définissant un projet
@@ -173,7 +175,7 @@ Pour alimenter les endpoints de cette nouvelle collection, vous pouvez importer 
 
 https://www.getpostman.com/collections/daef1894f692f4080b97
 
-Ci-après les copies d'écran (l'url dans les copies d'écran est donnée à titre d'exemple)
+Ci-après les copies d'écran :
 
 ![](images/importer_collection_01.png)
 
@@ -228,26 +230,20 @@ Pour créer un compte utilisateur, il suffit de :
 
 **Une fois connecté, l'API renvoie un Token dans la réponse HTTP.**
 
-**Il faut copier la valeur de ce Token (sans les double-quotes : ") pour le renseigner dans l'onglet `Authorization` des endpoints nécessitant une authentification.**
+**Dans l'onglet Tests du endpoint /login/, j'ai mis en place l'initialisation d'une variable globale jwt_token qui permet d'éviter de copier-coller la valeur du token dans chacun des onglets `Authorization` des endpoints nécessitant une authentification.**
 
 
 ##### 6.2.3) Tester un point de terminaison ne nécessitant pas d'objet JSON dans la requete
 
-**Première étape : renseigner le Token dans l'onglet `Authorization`**
+Le token est alimenté automatiquement si on est passé au préalable par le endpoint /login/.
 
-![](images/renseigner_token.png)
-
-**Deuxième étape : "poster" la requête**
+Avec le paramétrage fourni, le token a une durée de validité de 4 heures.
 
 Après avoir cliqué sur le bouton **SEND**, on observe la réponse HTTP suivante :
 
 ![](images/liste_projets.png)
 
 ##### 6.2.4) Tester un point de terminaison nécessitant un objet JSON dans la requete
-
-**Renseigner le Token**
-
-Voir plus haut.
 
 **Preparer la requête**
 
@@ -265,6 +261,8 @@ Valoriser l'objet JSON dans l'onglet `Body`.
 
 Le code de ce projet est sous licence libre **GNU GPL V3**
 
+Le paquet `drf-nested-routers` publié sous Licence Apache 2 dans ce projet est réalisé par
+**Alan Justino da Silva**
 
 ### 8) Questions/Aide/Support
 
