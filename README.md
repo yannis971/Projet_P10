@@ -208,7 +208,17 @@ Tous les autres endpoints sont accessibles uniquement à un utilisateur authenti
 
 Un token unique est généré pour chaque utilisateur connecté avec un email et un mot de passe valide et pour une durrée définie
 
-##### 6.2.1) Créer un compte utilisateur
+##### 6.2.1) Tester la collection dans son intégralité (toutes les requêtes en cascade)
+
+Vous pouvez tester la collection dans son intégralité ou chacune des requetes unitairement.
+
+Pour ce faire, il faut cliquer sur l'icone `View more actions` de l'API puis sur le bouton `Run collection`
+
+Les requêtes s'exécutent les unes à la suite des autres (le jeu de tests fournis ne donnant que des codes de retour de succès)
+
+![](images/run_collection.png)
+
+##### 6.2.2) Créer un compte utilisateur
 
 Pour créer un compte utilisateur, il suffit de :
 - se positionner sur le point de terminaison `signup/`
@@ -218,7 +228,7 @@ Pour créer un compte utilisateur, il suffit de :
 ![](images/creer_compte.png)
 
 
-##### 6.2.2) Se connecter pour obtenir un token JWT
+##### 6.2.3) Se connecter pour obtenir un token JWT
 
 Pour créer un compte utilisateur, il suffit de :
 - se positionner sur le point de terminaison `login/`
@@ -232,8 +242,7 @@ Pour créer un compte utilisateur, il suffit de :
 
 **Dans l'onglet Tests du endpoint /login/, j'ai mis en place l'initialisation d'une variable globale jwt_token qui permet d'éviter de copier-coller la valeur du token dans chacun des onglets `Authorization` des endpoints nécessitant une authentification.**
 
-
-##### 6.2.3) Tester un point de terminaison ne nécessitant pas d'objet JSON dans la requete
+##### 6.2.4) Tester un point de terminaison ne nécessitant pas d'objet JSON dans la requete
 
 Le token est alimenté automatiquement si on est passé au préalable par le endpoint /login/.
 
@@ -243,7 +252,7 @@ Après avoir cliqué sur le bouton **SEND**, on observe la réponse HTTP suivant
 
 ![](images/liste_projets.png)
 
-##### 6.2.4) Tester un point de terminaison nécessitant un objet JSON dans la requete
+##### 6.2.5) Tester un point de terminaison nécessitant un objet JSON dans la requete
 
 **Preparer la requête**
 
@@ -256,6 +265,7 @@ Valoriser l'objet JSON dans l'onglet `Body`.
 **Consulter la réponse**
 
 ![](images/creer_projet_response.png)
+
 
 ### 7) Licence
 
