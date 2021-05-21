@@ -26,25 +26,29 @@ router.register(r'signup', views.UserSignUpViewSet, basename='signup')
 
 project_router = DefaultRouter()
 project_router.register(r'projects', views.ProjectViewSet, basename='projects')
-## generates:
+# generates:
 # /projects/
 # /projects/{pk}/
 
-contributor_router = NestedSimpleRouter(project_router, r'projects', lookup='project')
-contributor_router.register(r'users', views.ContributorViewSet, basename='contributors')
-## generates:
+contributor_router = NestedSimpleRouter(project_router,
+                                        r'projects',
+                                        lookup='project')
+contributor_router.register(r'users', views.ContributorViewSet,
+                            basename='contributors')
+# generates:
 # /projects/{project_pk}/users/
 # /projects/{project_pk}/users/{pk}/
 
-issue_router = NestedSimpleRouter(project_router, r'projects', lookup='project')
+issue_router = NestedSimpleRouter(project_router,
+                                  r'projects', lookup='project')
 issue_router.register(r'issues', views.IssueViewSet, basename='issues')
-## generates:
+# generates:
 # /projects/{project_pk}/issues/
 # /projects/{project_pk}/issues/{pk}/
 
 comment_router = NestedSimpleRouter(issue_router, r'issues', lookup='issue')
 comment_router.register(r'comments', views.CommentViewSet, basename='comments')
-## generates:
+# generates:
 # /projects/{project_pk}/issues/{issue_pk}/comments/
 # /projects/{project_pk}/issues/{issue_pk}/comments/{pk}/
 

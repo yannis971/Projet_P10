@@ -16,12 +16,21 @@ from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 
 from soft_desk.mixins import CustomUpdateModelMixin
-from soft_desk.models import Comment, Contributor, Issue, Project, User
-from soft_desk.permissions import CommentPermission
-from soft_desk.permissions import ContributorPermission
-from soft_desk.permissions import IssuePermission
-from soft_desk.permissions import ProjectPermission
-from soft_desk.serializers import CommentSerializer, ContributorSerializer, IssueSerializer, ProjectSerializer, UserSerializer
+
+from soft_desk.models import (
+    Comment, Contributor,
+    Issue, Project, User
+)
+
+from soft_desk.permissions import (
+    CommentPermission, ContributorPermission,
+    IssuePermission, ProjectPermission
+)
+
+from soft_desk.serializers import (
+    CommentSerializer, ContributorSerializer, IssueSerializer,
+    ProjectSerializer, UserSerializer
+)
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -69,7 +78,8 @@ class UserLoginViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                     raise e
             else:
                 res = {
-                    'error': 'can not authenticate with the given credentials or the account has been deactivated'}
+                    'error': 'can not authenticate with the given credentials \
+                    or the account has been deactivated'}
                 return Response(res, status=status.HTTP_403_FORBIDDEN)
         except KeyError:
             res = {'error': 'please provide a email and a password'}
@@ -92,9 +102,11 @@ class ProjectViewSet(CustomUpdateModelMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            Project.objects.all()
-            list_project_id = [q['project_id'] for q in Contributor.objects.filter(user=self.request.user).values('project_id')]
-            return Project.objects.filter(Q(author_user=self.request.user) | Q(project_id__in=list_project_id)).order_by('project_id')
+            the_user = self.request.user
+            list_project_id = [q['project_id'] for q in
+                               Contributor.objects.filter(user=the_user).values('project_id')]
+            return Project.objects.filter(Q(author_user=the_user) |
+                                          Q(project_id__in=list_project_id)).order_by('project_id')
         else:
             return Project.objects.all()
 
@@ -158,11 +170,15 @@ class IssueViewSet(mixins.CreateModelMixin,
         return Issue.objects.filter(project=the_project).order_by('issue_id')
 
     def perform_create(self, serializer):
-        the_assignee_user = get_object_or_404(User, pk=serializer._kwargs['data']['assignee_user_id'])
-        the_project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        assignee_user_id = serializer._kwargs['data']['assignee_user_id']
+        the_assignee_user = get_object_or_404(User, pk=assignee_user_id)
+        the_project = get_object_or_404(Project,
+                                        pk=self.kwargs['project_pk'])
         the_author_user = self.request.user
         try:
-            serializer.save(assignee_user=the_assignee_user, author_user=the_author_user, project=the_project)
+            serializer.save(assignee_user=the_assignee_user,
+                            author_user=the_author_user,
+                            project=the_project)
         except IntegrityError:
             raise ValidationError("this issue already exists")
 

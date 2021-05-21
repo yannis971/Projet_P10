@@ -95,7 +95,8 @@ class GenericModelPermission(permissions.BasePermission):
             obj = view.get_object()
             return self.has_object_permission(request, view, obj)
         elif view.action in self.permissions_view_map:
-            perms = {f().has_permission(request, view) for f in self.permissions_view_map[view.action]}
+            perms = {f().has_permission(request, view) for f
+                     in self.permissions_view_map[view.action]}
             if False in perms:
                 return False
             else:
@@ -105,7 +106,8 @@ class GenericModelPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if view.action in self.permissions_object_map:
-            perms = {f().has_object_permission(request, view, obj) for f in self.permissions_object_map[view.action]}
+            perms = {f().has_object_permission(request, view, obj) for f
+                     in self.permissions_object_map[view.action]}
             if False in perms:
                 return False
             else:

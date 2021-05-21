@@ -14,7 +14,9 @@ class CustomUpdateModelMixin(mixins.UpdateModelMixin):
         for field in args:
             if field not in data_to_update:
                 data_to_update[field] = instance.__getattribute__(field)
-        serializer = self.get_serializer(instance, data=data_to_update, partial=partial)
+        serializer = self.get_serializer(instance,
+                                         data=data_to_update,
+                                         partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)

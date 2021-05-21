@@ -209,8 +209,10 @@ class Issue(models.Model):
         CLOSED = 'CLO', _('Closed')
 
     status = models.CharField(max_length=3, choices=Status.choices, default=Status.NEW)
-    author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name='author_user')
-    assignee_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE, related_name='assignee_user')
+    author_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE,
+                                    related_name='author_user')
+    assignee_user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE,
+                                      related_name='assignee_user')
     time_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
