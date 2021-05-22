@@ -4,6 +4,10 @@
 
 Ce projet consiste à développer une API sécurisée, pour le compte de la société SoftDesk, permettant d’accéder à une application de suivi de développement logiciel.
 
+**Schéma d'architecture globale**
+
+![](images/architecture_globale.png)
+
 
 #### 1.1) Frameworks utilisés
 
