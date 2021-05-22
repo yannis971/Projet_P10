@@ -66,18 +66,22 @@ C'est l'application qui héberge le code de l'API :
 - `serializers.py` : module contenant les classes permettant de "sérialiser" les objects de la base de données
 - `views.py` : module contenant l'ensemble des classes de type ViewSet appelées par l'API
 
-#### 2.4) Configuration du projet livré dans le repository Github
+#### 2.5) Modèle de données
 
-##### 2.4.1) Applications installées
+![](images/mpd.png)
+
+#### 2.6) Configuration du projet livré dans le repository Github
+
+##### 2.5.1) Applications installées
 
 ![](images/INSTALLED_APPS.png)
 
-##### 2.4.2) Paramétrages spécifiques
+##### 2.5.2) Paramétrages spécifiques
 
 ![](images/SPECIFIC_SETTINGS.png)
 
 
-#### 2.5) GitFlow du projet
+#### 2.6) GitFlow du projet
 
 Le projet est organisé en 2 branches :
 
@@ -171,11 +175,13 @@ https://www.postman.com/downloads/
 
 Créer une nouvelle collection.
 
-Pour alimenter les endpoints de cette nouvelle collection, vous pouvez importer la collection soft_desk_api_collection que j'ai partagée publiquement via le lien ci-dessous :
+Pour alimenter les endpoints de cette nouvelle collection, vous pouvez importer la collection soft_desk_api_collection que j'ai partagée publiquement via le lien ci-dessous provenant de mon espace de travail sur postman:
 
 https://www.getpostman.com/collections/daef1894f692f4080b97
 
-Ci-après les copies d'écran :
+![](images/postman_public_collections.png)
+
+Ci-après les copies d'écran **pour importer une collection** :
 
 ![](images/importer_collection_01.png)
 
